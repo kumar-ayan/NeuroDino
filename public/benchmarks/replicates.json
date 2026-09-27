@@ -1,0 +1,29 @@
+{
+  "note": "Same protocol and predeclared seeds. Published checkpoint is the first seed, not selected using test performance. Test courses overlap across replicas; these are 3 training runs, not 300 independent test courses.",
+  "results": [
+    {
+      "seed": 20260912,
+      "generation": 32,
+      "validation": 2591.75,
+      "survived": 99,
+      "meanSeconds": 179.37199999998705,
+      "meanScore": 2885.75
+    },
+    {
+      "seed": 20260913,
+      "generation": 46,
+      "validation": 2898,
+      "survived": 85,
+      "meanSeconds": 174.39633333332299,
+      "meanScore": 2788.7
+    },
+    {
+      "seed": 20260914,
+      "generation": 33,
+      "validation": 2898,
+      "survived": 100,
+      "meanSeconds": 179.99999999998678,
+      "meanScore": 2898
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "upstream": "https://github.com/chromium/chromium",
+  "revision": "0b0619d8287f51c4fca09d0385c163d30bd35c4b",
+  "tag": "98.0.4758.55",
+  "license": "BSD-3-Clause",
+  "modifications": "Source files unchanged. Generated lexical platform wrapper. NeuroDino supplies deterministic clock/randomness and replaces browser-page lifecycle hooks.",
+  "sha256": {
+    "vendor/chromium/offline.js": "46527bc59178cb11b7a1bddbad05e54cca53b86286501e501472af291a611ef0",
+    "vendor/chromium/offline-sprite-definitions.js": "2ce9427d6fdaf232e966f39c1297657a371a5d1760d244a7bfea32ffd52fb312",
+    "src/lib/chromium-engine.js": "e672a4db83fe815b7683e2f276b19ad045a70866ccdead5f5c04b41d28df7efc",
+    "public/vendor/chromium/200-offline-sprite.png": "e4222715b556e7d99622c83e620d2f8e090047e56adb07923047f95828d561f2",
+    "public/vendor/chromium/LICENSE": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
+  }
+}

@@ -1,0 +1,612 @@
+/* NEURODINO — warm paper / pastel field-notes look.
+   Bare layout: title bar, three visualization panels in a row,
+   and the original Chromium dino game running full-width beneath.
+   The game surface stays original Chromium white. */
+
+:root {
+  color-scheme: light;
+  --bg: #faf6ee;
+  --surface: #ffffff;
+  --surface-2: #fdfaf4;
+  --surface-3: #f8f2e7;
+  --ink: #4d4237;
+  --muted: #8a7d6f;
+  --faint: #b3a698;
+  --line: #ece4d8;
+  --line-soft: #f2ece1;
+  --line-strong: #ddd2c2;
+
+  /* one pastel per panel */
+  --peach: #f0a477;
+  --peach-deep: #d97f4d;
+  --peach-soft: #fdeadd;
+  --lilac: #c3aede;
+  --lilac-deep: #9379b8;
+  --sky: #9ec2dd;
+  --sky-deep: #6f9cc0;
+  --sky-soft: #e9f2f9;
+  --sage: #8fb89a;
+  --sage-deep: #5f8f6f;
+  --sage-soft: #e9f3ec;
+
+  --red: #d98d76;
+  --link: var(--sky-deep);
+
+  --sans: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --gutter: clamp(12px, 2vw, 32px);
+  --measure: 1600px;
+  --panel-head: 44px;
+  --text-caption: 12px;
+  --text-label: 13px;
+  --text-body: 14px;
+  --focus: var(--peach-deep);
+  --error: #c96a52;
+  --radius: 12px;
+  --radius-small: 9px;
+  --shadow-card: 0 14px 34px -22px rgba(96, 72, 48, 0.28), 0 2px 8px -4px rgba(96, 72, 48, 0.08);
+  --dur: 160ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  font-family: var(--sans);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  font-synthesis: none;
+  color: var(--ink);
+  background: var(--bg);
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  background:
+    radial-gradient(1100px 500px at 15% -8%, #fdeee0 0%, transparent 55%),
+    radial-gradient(900px 420px at 90% -4%, #eef4f8 0%, transparent 55%),
+    radial-gradient(800px 420px at 50% 110%, #f2ecf7 0%, transparent 55%),
+    var(--bg);
+}
+::selection {
+  background: rgba(240, 164, 119, 0.35);
+  color: var(--ink);
+}
+a {
+  color: var(--link);
+  text-underline-offset: 3px;
+  font-weight: 600;
+}
+a:hover {
+  color: var(--ink);
+}
+button,
+input,
+select {
+  font: inherit;
+}
+h1,
+h2,
+p {
+  margin: 0;
+}
+h2 {
+  font-weight: 700;
+  color: var(--ink);
+}
+main,
+.header-inner {
+  width: min(var(--measure), 100% - var(--gutter) * 2);
+  margin-inline: auto;
+}
+
+/* ---------- controls ---------- */
+button,
+select {
+  min-height: 34px;
+  padding: 5px 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 2px rgba(96, 72, 48, 0.06);
+}
+button {
+  cursor: pointer;
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    transform 80ms var(--ease);
+}
+button:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--faint);
+}
+button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+button[aria-pressed="true"] {
+  border-color: var(--peach);
+  color: var(--peach-deep);
+  background: var(--peach-soft);
+  box-shadow: none;
+}
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+canvas:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---------- masthead (title bar) ---------- */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(250, 246, 238, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.header-inner {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ffffff, var(--surface-3));
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-card);
+}
+.brand-mark::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--peach);
+  box-shadow: 0 0 0 3px var(--peach-soft);
+}
+.brand-word b {
+  font-weight: 800;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.controller-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+select {
+  max-width: 100%;
+  padding-right: 24px;
+}
+
+/* ---------- panels ---------- */
+.workbench {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: clamp(300px, 40vh, 430px);
+  grid-template-areas: "network fly brain";
+  gap: 14px;
+  padding: 14px 0;
+}
+.panel {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.network-panel {
+  grid-area: network;
+}
+.fly-panel {
+  grid-area: fly;
+}
+.brain-panel {
+  grid-area: brain;
+}
+.game-panel {
+  margin-bottom: 18px;
+}
+.panel h2 {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: var(--panel-head);
+  padding: 0 14px;
+  font-size: var(--text-caption);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.panel h2 > span::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 9px;
+  border-radius: 50%;
+  background: var(--panel-accent, var(--peach));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--panel-accent, var(--peach)) 22%, transparent);
+}
+.network-panel h2 {
+  --panel-accent: var(--lilac);
+}
+.fly-panel h2 {
+  --panel-accent: var(--sky);
+}
+.brain-panel h2 {
+  --panel-accent: var(--sage);
+}
+.game-panel h2 {
+  --panel-accent: var(--peach);
+}
+.panel h2 small {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+kbd {
+  font: 10px var(--mono);
+  font-weight: 600;
+  padding: 2px 6px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* ---------- game panel (original Chromium surface) ---------- */
+.game-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #535353;
+}
+.runner-canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4;
+  display: block;
+  image-rendering: pixelated;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.runner-canvas:focus-visible {
+  outline-color: #465843;
+  outline-offset: -3px;
+}
+.runner-inputs {
+  display: none;
+}
+.runner-canvas + p[role="alert"] {
+  position: absolute;
+  left: 14px;
+  bottom: 10px;
+  z-index: 5;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--error);
+}
+
+/* ---------- metrics strip (game HUD) ---------- */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.metrics > div {
+  position: relative;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  overflow: hidden;
+}
+.metrics > div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--metric-accent, var(--line-strong));
+  opacity: 0.55;
+}
+.metrics > div:nth-child(1) {
+  --metric-accent: var(--peach);
+}
+.metrics > div:nth-child(2) {
+  --metric-accent: var(--peach);
+}
+.metrics > div:nth-child(3) {
+  --metric-accent: var(--lilac);
+}
+.metrics > div:nth-child(4) {
+  --metric-accent: var(--lilac);
+}
+.metrics > div:nth-child(5) {
+  --metric-accent: var(--sky);
+}
+.metrics span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+.metrics strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-top: 2px;
+}
+.metrics small {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.metrics > div:first-child strong {
+  color: var(--peach-deep);
+}
+
+/* ---------- 3D viewports ---------- */
+.three-viewport {
+  position: absolute;
+  inset: var(--panel-head) 0 0;
+  touch-action: none;
+  cursor: grab;
+  background:
+    radial-gradient(120% 90% at 50% 110%, var(--surface-3), transparent 60%),
+    var(--surface);
+}
+.three-viewport:active {
+  cursor: grabbing;
+}
+.three-viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.loading,
+.neural-load {
+  position: absolute;
+  left: 14px;
+  top: 26px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.fly-load {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.fly-load.ready,
+.fly-load [lang="tr"],
+.neural-load [lang="tr"] {
+  display: none;
+}
+.brain-view-controls {
+  position: absolute;
+  right: 12px;
+  top: 52px;
+  z-index: 5;
+  display: flex;
+  gap: 6px;
+}
+.brain-view-controls button {
+  padding: 4px 10px;
+  font-size: 11px;
+  min-height: 28px;
+}
+.activity-label {
+  position: absolute;
+  left: 14px;
+  top: 52px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--sage-deep);
+  pointer-events: none;
+}
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--peach);
+  box-shadow: 0 0 0 3px var(--peach-soft);
+}
+
+/* ---------- policy network ---------- */
+.policy-network {
+  position: absolute;
+  inset: 52px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+.policy-network svg {
+  display: block;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.policy-network svg text {
+  fill: var(--muted);
+  font: 600 14px var(--sans);
+}
+.policy-network svg > text {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  fill: var(--faint);
+}
+.policy-caption {
+  padding: 4px 2px;
+  color: var(--lilac-deep);
+  font-weight: 700;
+  font-size: var(--text-caption);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 12px;
+}
+.policy-caption span {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  .workbench {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: clamp(280px, 36vh, 380px) clamp(280px, 36vh, 380px);
+    grid-template-areas:
+      "network fly"
+      "network brain";
+  }
+}
+@media (max-width: 760px) {
+  .header-inner {
+    height: auto;
+    padding: 10px 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .brand {
+    font-size: 14px;
+  }
+  .controls {
+    width: 100%;
+  }
+  .controller-select {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .controller-select select {
+    flex: 1;
+    min-width: 0;
+  }
+  .controls > button {
+    flex: 1;
+  }
+  button,
+  select {
+    min-height: 44px;
+  }
+  .workbench {
+    gap: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 340px 330px 300px;
+    grid-template-areas: "network" "fly" "brain";
+  }
+  .panel h2 {
+    font-size: 10px;
+  }
+  .panel h2 small {
+    display: none;
+  }
+  .metrics {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    padding: 10px;
+  }
+  .metrics > div {
+    padding: 8px;
+  }
+  .metrics strong {
+    font-size: 15px;
+  }
+  .metrics span {
+    font-size: 8px;
+  }
+  .brain-view-controls {
+    top: 52px;
+  }
+  .brain-view-controls button {
+    min-height: 36px;
+  }
+}
+
+/* ---------- motion preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
